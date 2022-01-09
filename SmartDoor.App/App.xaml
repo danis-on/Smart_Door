@@ -2,25 +2,51 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:windows="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.WindowsSpecific;assembly=Microsoft.Maui.Controls"
              xmlns:local="clr-namespace:SmartDoor.App"
+             xmlns:fontAwesome="clr-namespace:SmartDoor.App.Helpers.FontAwesome"
              x:Class="SmartDoor.App.App"
              windows:Application.ImageDirectory="Assets">
     <Application.Resources>
         <ResourceDictionary>
 
+            <Style x:Key="BaseStyle" TargetType="Element">
+                <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Dark=Black, Light=White}" />
+                <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Dark=White, Light=Black}" />
+                <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Dark=White, Light=Black}" />
+                <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
+                <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Dark=#95FFFFFF, Light=#95000000}" />
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Dark=Black, Light=White}" />
+                <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Dark=White, Light=Black}" />
+                <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Dark=#95FFFFFF, Light=#95000000}" />
+                <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Dark=White, Light=Black}" />
+            </Style>
+            <Style BasedOn="{StaticResource BaseStyle}" TargetType="TabBar" />
+
+            <x:String x:Key="IconCoffee">&#xf0f4;</x:String>
+            <FontImageSource x:Key="Icon" FontFamily="FAS" Glyph="{x:Static fontAwesome:FontAwesomeIcons.Android}"/>
+
+            <Color x:Key="SystemGrayDark">#8E8E93</Color>
+            <Color x:Key="SystemGray2Dark">#636366</Color>
+            <Color x:Key="SystemGray3Dark">#484848</Color>
+            <Color x:Key="SystemGray4Dark">#3A3A3C</Color>
+            <Color x:Key="SystemGray5Dark">#2C2C2E</Color>
+            <Color x:Key="SystemGray6Dark">#1C1C1E</Color>
+
             <Color x:Key="PrimaryColor">#512bdf</Color>
-            <Color x:Key="SecondaryColor">White</Color>
+                    <Color x:Key="SecondaryColor">White</Color>
 
-            <Style TargetType="Label">
-                <Setter Property="TextColor" Value="{DynamicResource PrimaryColor}" />
-                <Setter Property="FontFamily" Value="OpenSansRegular" />
-            </Style>
+                    <Style TargetType="Label">
+                        <Setter Property="TextColor" Value="{StaticResource PrimaryColor}" />
+                        <Setter Property="FontFamily" Value="OpenSansRegular" />
+                    </Style>
 
-            <Style TargetType="Button">
-                <Setter Property="TextColor" Value="{DynamicResource SecondaryColor}" />
-                <Setter Property="FontFamily" Value="OpenSansRegular" />
-                <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryColor}" />
-                <Setter Property="Padding" Value="14,10" />
-            </Style>
+                    <Style TargetType="Button">
+                        <Setter Property="TextColor" Value="{StaticResource SecondaryColor}" />
+                        <Setter Property="FontFamily" Value="OpenSansRegular" />
+                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                        <Setter Property="Padding" Value="14,10" />
+                    </Style>
+
+
 
         </ResourceDictionary>
     </Application.Resources>

@@ -1,6 +1,7 @@
-﻿using MvvmHelpers.Commands;
+﻿using Microsoft.Maui.Controls;
+using MvvmHelpers;
+using SmartDoor.App.Client;
 using SmartDoor.App.Models;
-using SmartDoor.App.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,19 +13,24 @@ namespace SmartDoor.App.ViewModels
     public class UserViewModel : ViewModelBase
     {
 
-        public AsyncCommand RefreshCommand { get; }
-        public AsyncCommand AddCommand { get; }
-        public AsyncCommand<User> RemoveCommand { get; }
+        public ObservableRangeCollection<User> Users { get; set; }
+
+        ApiClient _apiClient = new ApiClient();
+
+        public Command RefreshCommand { get; }
+        public Command AddCommand { get; }
+        public Command<User> RemoveCommand { get; }
 
         public UserViewModel()
 
         {
-            Title = "Users of this home";
 
 
-            RefreshCommand = new AsyncCommand(Refresh);
-            AddCommand = new AsyncCommand(Add);
-            RemoveCommand = new AsyncCommand<User>(Remove);
+
+            RefreshCommand = new Command(async () => await Refresh());
+            AddCommand = new Command(async () => await Add());
+           //RemoveCommand = new Command(async () => await Remove());
+            GetUsers =  new Command(async () => await ExecuteGetUsers());
 
 
         }
@@ -35,23 +41,40 @@ namespace SmartDoor.App.ViewModels
             var login = await App.Current.MainPage.DisplayPromptAsync("Login", "Login");
             var roleid = await App.Current.MainPage.DisplayPromptAsync("RoleId", "Role ID");
             var password = await App.Current.MainPage.DisplayPromptAsync("Password", "Passsword");
-            await UserService.AddUser(login,Int32.Parse(roleid),password);
+            await ApiClient.AddUser(login, Int32.Parse(roleid), password);
             await Refresh();
         }
 
+
+        public Command GetUsers { get; }
+
+
+        private async Task ExecuteGetUsers()
+        {
+
+
+            await _apiClient.GetUsers();
+
+            await Shell.Current.GoToAsync("//home");
+
+
+
+        }
+
+
         async Task Remove(User user)
         {
-            await UserService.RemoveUser(user.Id);
+            await ApiClient.RemoveUser(user.Id);
             await Refresh();
         }
 
         async Task Refresh()
         {
-            IsBusy = true;
+
 
             await Task.Delay(2000);
 
-            IsBusy = false;
+
         }
 
 

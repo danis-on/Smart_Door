@@ -1,16 +1,21 @@
 ﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Essentials;
 using System;
 
-namespace SmartDoor.App
+namespace SmartDoor.App.Views
 {
+    [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainPage : ContentPage
     {
         int count = 0;
 
+
+
         public MainPage()
         {
             InitializeComponent();
+            
         }
 
         private void OnCounterClicked(object sender, EventArgs e)

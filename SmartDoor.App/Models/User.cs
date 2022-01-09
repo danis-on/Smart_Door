@@ -20,4 +20,17 @@ namespace SmartDoor.App.Models
 
 
     }
+
+    public class Login
+    {
+ 
+        [JsonProperty("login")]
+        public string Loginname { get; set; }
+        [JsonProperty("password")]
+        public string Password{ get; set; }
+        [JsonProperty("validity")]
+        public int Validity { get; set; }
+
+    }
+
 }

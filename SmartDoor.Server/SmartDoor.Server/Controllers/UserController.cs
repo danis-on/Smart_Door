@@ -27,6 +27,17 @@ public class UserController : Controller
         return u.Id <= 0 ? NotFound() : new UserResponse(u.Id, u.Login, u.Role);
     }
 
+    
+    [AccessRole(UserRole.Admin)]
+    [HttpGet("Get/AllUsers")]
+    public async Task<IEnumerable<User>> Users( )
+    {
+        IEnumerable<User> u = await _db.QueryAsync<User>("select id,login,role from user").ConfigureAwait(false);
+        return u;
+    }
+
+
+
     [AccessRole(UserRole.Admin)]
     [HttpPost("Create")]
     public async Task<ActionResult<UserResponse>> Create(UserCreateRequest req)

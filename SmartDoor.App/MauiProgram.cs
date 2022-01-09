@@ -15,6 +15,8 @@ namespace SmartDoor.App
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("fa-solid-900.ttf", "FAS");
+
                 });
 
             return builder.Build();
