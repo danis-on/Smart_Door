@@ -27,6 +27,7 @@ namespace SmartDoor.App
 
             Routing.RegisterRoute(nameof(MainPage),
                 typeof(MainPage));
+
         }
 
     }

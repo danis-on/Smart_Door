@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
 using SmartDoor.App.Client;
+using SmartDoor.App.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,14 +13,21 @@ namespace SmartDoor.App.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-
-          ApiClient _apiClient = new ApiClient();
-
-        public string Username { get; set; }
-        public string Password { get; set; }
+        private string username;
+        private string password;
 
 
-        public LoginViewModel ()
+        public string Username { get => username; set => SetProperty(ref username, value); }
+        public string Password { get => password; set => SetProperty(ref password, value); }
+
+        private string message;
+        public string Message
+        {
+            get { return message; }
+            set { SetProperty(ref message, value); }
+        }
+
+        public LoginViewModel()
         {
             LoginCommand = new Command(async () => await ExecuteLoginCommand());
 
@@ -30,23 +38,45 @@ namespace SmartDoor.App.ViewModels
 
         private async Task ExecuteLoginCommand()
         {
-            if ((string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password)) && !_apiClient.IsAuthorized)
+            Message = null;
+
+            try
             {
-                Console.WriteLine($"zadej uzivatele");
-                
+                if ((string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password)) && !ApiClient.IsAuthorized)
+                {
+                    Message = "Zadej username a password!";
+                    await DisplayMessage("Chyba!", Message);
+                }
+                else
+                {
+                    var result = await ApiClient.Login(Username, Password);
+
+                    if (!result.IsSuccess && result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        Message = "Nesprávné přihlašovací údaje";
+                        await DisplayMessage("Chyba!", Message);
+
+                        return;
+                    }
+                    else if (!result.IsSuccess)
+                    {
+                        Message = "Upss! Něco se pokazilo";
+                        await DisplayMessage("Chyba!",Message);
+                        return;
+                    }
+                    Message = $"Vitej v aplikaci uživateli {Username}!";
+                    await DisplayMessage("Přihlášení úspěšné!",Message);
+                    await Shell.Current.GoToAsync("//home");
+                }
             }
-            else {
-
-                await _apiClient.Login(Username, Password);
-                await _apiClient.GetUsers();
-
-                await Shell.Current.GoToAsync("//home");
+            catch (Exception ex)
+            {
+                Message = ex.Message;
+                await DisplayMessage("Chyba!",Message);
             }
-          
-
         }
 
-
+     
 
     }
 

@@ -3,6 +3,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.PlatformConfiguration.WindowsSpecific;
 using MvvmHelpers;
+using SmartDoor.App.Client;
 using SmartDoor.App.ViewModels;
 using System;
 using Application = Microsoft.Maui.Controls.Application;
@@ -31,15 +32,14 @@ namespace SmartDoor.App
         {
             var services = new ServiceCollection();
 
-           
 
             //ViewModels
-            services.AddTransient<LoginViewModel>();
-            services.AddTransient<UserViewModel>();
+            services.AddSingleton<LoginViewModel>();
+            services.AddSingleton<UserViewModel>();
+            services.AddSingleton<DoorViewModel>();
 
 
             ServiceProvider = services.BuildServiceProvider();
-
 
         }
 

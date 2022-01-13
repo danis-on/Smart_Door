@@ -15,9 +15,16 @@
         <StackLayout Padding="40" VerticalOptions="Center"
                      HorizontalOptions="FillAndExpand">
             <Label Text="Username:"/>
-            <Entry Placeholder="Username" Text="{Binding Username}"  />
+            <Entry Placeholder="Username" Text="{Binding Username}" />
             <Label Text="Password:"/>
             <Entry IsPassword="True" Placeholder="Password" Text="{Binding Password}"/>
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Center" />
+
             <Button 
                 Command="{Binding LoginCommand}"
                 Text="Login" />

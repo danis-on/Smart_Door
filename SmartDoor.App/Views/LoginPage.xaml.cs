@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.Maui.Animations;
+using SmartDoor.App.ViewModels;
+using SmartDoor.App.Client;
 
 namespace SmartDoor.App.Views
 {
@@ -15,15 +17,20 @@ namespace SmartDoor.App.Views
         public LoginPage()
         {
             InitializeComponent();
-            
-        
+
+            BindingContext = App.GetViewModel<LoginViewModel>();
+
         }
 
-        private async void Button_Clicked(object sender, EventArgs e)
+        protected override void OnAppearing()
         {
-           
-            await Shell.Current.GoToAsync("//home");
+            if (!ApiClient.IsAuthorized)
+            {
+                Shell.Current.GoToAsync("//login");
+            }
+            base.OnAppearing();
         }
+
 
 
     }

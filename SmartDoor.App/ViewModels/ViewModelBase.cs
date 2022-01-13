@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Essentials;
+﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Essentials;
 using MvvmHelpers;
 using System;
 using System.Collections.Generic;
@@ -10,28 +11,10 @@ using System.Threading.Tasks;
 
 namespace SmartDoor.App.ViewModels
 {
-    public abstract class ViewModelBase : BaseViewModel, INotifyPropertyChanged
-
-
+    public abstract class ViewModelBase : BaseViewModel
 
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (value == null ? field != null : !value.Equals(field))
-            {
-                field = value;
-
-                var handler = this.PropertyChanged;
-                if (handler != null)
-                {
-                    handler(this, new PropertyChangedEventArgs(propertyName));
-                }
-                return true;
-            }
-            return false;
-        }
+     
 
         public static bool InternetConnectivity()
         {
@@ -41,5 +24,11 @@ namespace SmartDoor.App.ViewModels
 
             return false;
         }
+
+        public async Task DisplayMessage(string title, string message)
+        {
+            await Shell.Current.DisplayAlert(title, message, "OK");
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using SmartDoor.App.Client;
 using SmartDoor.App.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +14,8 @@ namespace SmartDoor.App.ViewModels
     public class UserViewModel : ViewModelBase
     {
 
-        public ObservableRangeCollection<User> Users { get; set; }
-
-        ApiClient _apiClient = new ApiClient();
+        public ObservableRangeCollection<User> Users {get ; set;} 
+       
 
         public Command RefreshCommand { get; }
         public Command AddCommand { get; }
@@ -25,42 +25,62 @@ namespace SmartDoor.App.ViewModels
 
         {
 
-
+           Users = new ObservableRangeCollection<User>();
 
             RefreshCommand = new Command(async () => await Refresh());
             AddCommand = new Command(async () => await Add());
            //RemoveCommand = new Command(async () => await Remove());
-            GetUsers =  new Command(async () => await ExecuteGetUsers());
+           GetUsers =  new Command(async () => await ExecuteGetUsers());
 
-
+            
         }
 
 
         async Task Add()
         {
-            var login = await App.Current.MainPage.DisplayPromptAsync("Login", "Login");
-            var roleid = await App.Current.MainPage.DisplayPromptAsync("RoleId", "Role ID");
+           /* var login = await App.Current.MainPage.DisplayPromptAsync("Login", "Login");
+            UserRole roleid = await App.Current.MainPage.DisplayPromptAsync("RoleId", "Role ID");
             var password = await App.Current.MainPage.DisplayPromptAsync("Password", "Passsword");
-            await ApiClient.AddUser(login, Int32.Parse(roleid), password);
-            await Refresh();
+            await ApiClient.AddUser(login, , password);
+            await Refresh();*/
         }
 
 
         public Command GetUsers { get; }
 
 
-        private async Task ExecuteGetUsers()
+       private async Task ExecuteGetUsers()
         {
+            try
+            {
+
+                var users  =  await ApiClient.GetUsers();
 
 
-            await _apiClient.GetUsers();
+            foreach (var u in users.Data)
+            {
+                   var  user = new User();
+                {
+                        user.Id = u.Id;
+                        user.Login = u.Login;
+                        user.Password = u.Password;
+                        user.RoleId = u.RoleId;
 
-            await Shell.Current.GoToAsync("//home");
+                };
+                Users.Add(user);
+                            
+            }
 
 
+            }
+            catch (Exception ex)
+            {
+                await DisplayMessage("Chyba!", ex.Message);
+            }
+         
 
         }
-
+       
 
         async Task Remove(User user)
         {
@@ -71,9 +91,8 @@ namespace SmartDoor.App.ViewModels
         async Task Refresh()
         {
 
-
             await Task.Delay(2000);
-
+            //await Task.Run(ExecuteGetUsers);
 
         }
 

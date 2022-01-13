@@ -15,7 +15,7 @@
     </Shell.Resources>
 
     <ShellItem Route="LoginPage" FlyoutItemIsVisible="False">
-        <ShellContent ContentTemplate="{DataTemplate local:LoginPage}"/>
+        <ShellContent ContentTemplate="{DataTemplate local:LoginPage}" Route="login"/>
     </ShellItem>
     
 

@@ -15,130 +15,112 @@ using SmartDoor.App.Client;
 
 namespace SmartDoor.App.Client
 {
-    public class ApiClient
+    public static class ApiClient
     {
 
-        public const int ValidityOfToken = 3600;
-
         //URL to SmartDoor Server API
-        private string BaseUrl = "http://smartdoor.cz";
-        public Uri Uri { get; }
+        private static string BaseUrl = "http://172.16.10.132:5281"; /*172.16.10.132:5281 http://192.168.68.105:5281*/
 
-        private string BearerToken;
-        private DateTime BearerValidTo;
-
-        //static string Login(string user, string password);
-        static HttpClient client;
+        private static string BearerToken;
 
 
-        public bool IsAuthorized
+        static HttpClient client = new HttpClient()
         {
+
+            BaseAddress = new Uri(BaseUrl)
+
+        };
+
+        static bool _auth;
+        public static bool IsAuthorized
+        {
+
             get
             {
-                return !string.IsNullOrEmpty(BearerToken) && BearerValidTo > DateTime.Now;
+                return _auth;
+            }
+
+            set
+            {
+                _auth = value;
+                
             }
         }
 
-        public ApiClient()
+
+
+        public static void Logout()
+        {
+            client.DefaultRequestHeaders.Remove("Token");
+            IsAuthorized = false;
+        }
+
+
+        public static async Task<ApiResponse> Login(string username, string password, CancellationToken ct = default(CancellationToken))
         {
             try
             {
-                client = new HttpClient()
+                var request = new LoginRequest() { Login = username, Password = password };
+                HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "/Auth/Login");
+                httpRequest.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+
+                var response = await client.SendAsync(httpRequest, ct).ConfigureAwait(false);
+                Console.WriteLine($"Response:{response.StatusCode} {response.ReasonPhrase}");
+
+                IsAuthorized = response.StatusCode == System.Net.HttpStatusCode.OK;
+
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    BaseAddress = new Uri(BaseUrl)
+                    var responseData = JsonConvert.DeserializeObject<AuthenticationModel>(await response.Content.ReadAsStringAsync());
+                    Console.WriteLine($"ResponseData:{responseData}");
+                    BearerToken = responseData.Token;
+                    client.DefaultRequestHeaders.Add("Token", BearerToken);
 
-                };
-            }
-            catch
-            {
-
-            }
-
-        }
-
-
-        public HttpClientHandler GetInsecureHandler()
-        {
-            HttpClientHandler handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
-            {
-                if (cert.Issuer.Equals("CN=localhost"))
-                    return true;
-                return errors == System.Net.Security.SslPolicyErrors.None;
-            };
-            return handler;
-        }
-
-
-        public async Task<bool> Login(string username, string password, CancellationToken ct = default(CancellationToken))
-        {
-            //HttpClientHandler insecureHandler = GetInsecureHandler();
-
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var request = new LoginRequest() { Login = username, Password = password, ValidityInSeconds = ValidityOfToken };
-                    HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "/Auth/Login");
-                    httpRequest.Content = new System.Net.Http.StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-
-                    var response = await client.SendAsync(httpRequest, ct).ConfigureAwait(false);
-                    Console.WriteLine($"Response:{response.StatusCode} {response.ReasonPhrase}");
-
-                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        var responseData = JsonConvert.DeserializeObject < AuthenticationModel >(await response.Content.ReadAsStringAsync());
-                        Console.WriteLine($"ResponseData:{responseData}");
-                        BearerToken = responseData.Token;
-                        //string  BearerToken2 = JsonConvert.DeserializeAnonymousType<>(responseData);
-                        BearerValidTo = DateTime.Now.AddSeconds(ValidityOfToken * 0.9);
-
-                        return true;
-                    }
-                    return false;
+                    return new ApiResponse(response.StatusCode);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($"Failed {ex}");
-                    return false;
+                    return new ApiResponse(response.StatusCode);
                 }
             }
-        }
-
-
-
-        public  async Task<User> GetUser(int id)
-        {
-
-            User user = new User();
-
-            HttpResponseMessage response = await client.GetAsync($"/User/Get/{id}");
-
-            if (response.IsSuccessStatusCode)
+            catch (Exception ex)
             {
-                string responseString = await response.Content.ReadAsStringAsync();
-                user = JsonConvert.DeserializeObject<User>(responseString);
+                Console.WriteLine($"Failed {ex}");
+                return new ApiResponse(System.Net.HttpStatusCode.InternalServerError);
+            }
 
-            };
-
-            return user;
         }
 
-        public  async Task<IEnumerable<User>> GetUsers(CancellationToken ct = default(CancellationToken))
+
+        public static async Task<ApiResponse<User>> GetUser(int id, CancellationToken ct = default)
         {
+            var response = await Send<User>(HttpMethod.Get, $"/User/Get/{id}", null, ct).ConfigureAwait(false);
 
-            //if (!IsAuthorized) return null;
+            return response;
+        }
 
-            var response = await Send(HttpMethod.Get, "/User/Get/AllUsers", null, ct).ConfigureAwait(false);
+        public static async Task<ApiResponse> OpenDoor(CancellationToken ct = default)
+        {
+            var response = await Send<string>(HttpMethod.Get, $"/Door/Open", null, ct).ConfigureAwait(false);
+
+            return response;
+        }
+
+
+
+        public static async Task<ApiResponse<List<User>>> GetUsers(CancellationToken ct = default)
+        {
+            var response = await Send<List<User>>(HttpMethod.Get, "/User/Get/AllUsers", null, ct).ConfigureAwait(false);
+
             if (!response.IsSuccess)
                 return null;
-            return JsonConvert.DeserializeObject<IEnumerable<User>>(response.ResponseContent);
-
+            return response;
         }
+
 
         public static async Task AddUser(string login, int roleId, string password)
         {
-           
+
             var user = new User
             {
                 Login = login,
@@ -168,43 +150,40 @@ namespace SmartDoor.App.Client
         }
 
 
-        private async Task<ApiResponse> Send(HttpMethod httpMethod, string endpoint, object data, CancellationToken ct = default(CancellationToken))
+        private static async Task<ApiResponse<T>> Send<T>(HttpMethod httpMethod, string endpoint, object data, CancellationToken ct = default(CancellationToken)) 
         {
-            //if (!IsAuthorized)
-              //  return new ApiResponse() { ErrorCode = "Client not authorized" };
 
-            var endpointUri = new Uri(BaseUrl+endpoint);
-            using (var client = new HttpClient())
+            var endpointUri = new Uri(BaseUrl + endpoint);
+
+            try
             {
-                //client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("", BearerToken); 
-                try
-                {
-                    HttpRequestMessage httpRequest = new HttpRequestMessage(httpMethod, endpointUri);
-                    httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+                HttpRequestMessage httpRequest = new HttpRequestMessage(httpMethod, endpointUri);
 
-                    if (data != null)
-                    {
-                        var json = JsonConvert.SerializeObject(data);
-                        var content = new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json");
-                        httpRequest.Content = content;
-                    }
 
-                    var response = await client.SendAsync(httpRequest, ct).ConfigureAwait(false);
-                    Console.WriteLine($"Response:{response.StatusCode} {response.ReasonPhrase}");
-                    if (((int)response.StatusCode) < 400)
-                    {
-                        string responseData = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"ResponseData:{responseData}");
-                        return new ApiResponse() { ResponseContent = responseData, ResponseMessage = response };
-                    }
-                    return new ApiResponse() { ResponseContent = null, ResponseMessage = response };
-                }
-                catch (Exception ex)
+                if (data != null)
                 {
-                    Console.WriteLine($"Failed {ex}");
-                    return new ApiResponse() { ErrorCode = ex.Message };
+                    var json = JsonConvert.SerializeObject(data);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    httpRequest.Content = content;
                 }
+
+                var response = await client.SendAsync(httpRequest, ct).ConfigureAwait(false);
+                Console.WriteLine($"Response:{response.StatusCode} {response.ReasonPhrase}");
+                if (((int)response.StatusCode) < 400)
+                {
+                    string responseData = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"ResponseData:{responseData}");
+                    
+                    return new ApiResponse<T>(response.StatusCode, JsonConvert.DeserializeObject<T>(responseData));
+                }
+                return new ApiResponse<T>(response.StatusCode, default(T));
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed {ex}");
+                return new ApiResponse<T>(System.Net.HttpStatusCode.InternalServerError,default(T)); ;
+            }
+
         }
 
 

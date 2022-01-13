@@ -32,7 +32,7 @@ public class UserController : Controller
     [HttpGet("Get/AllUsers")]
     public async Task<IEnumerable<User>> Users( )
     {
-        IEnumerable<User> u = await _db.QueryAsync<User>("select id,login,role from user").ConfigureAwait(false);
+        IEnumerable<User> u = await _db.QueryAsync<User>("select * from user").ConfigureAwait(false);
         return u;
     }
 

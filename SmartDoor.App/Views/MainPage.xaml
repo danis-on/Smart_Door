@@ -2,9 +2,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SmartDoor.App.Views.MainPage"
               xmlns:viewmodels="clr-namespace:SmartDoor.App.ViewModels"
-             x:DataType="viewmodels:UserViewModel"
-             BackgroundColor="{DynamicResource SecondaryColor}">
+             x:DataType="viewmodels:DoorViewModel"
+             BackgroundColor="{DynamicResource SecondaryColor}"
+             Shell.FlyoutItemIsVisible="True"
+             Shell.TabBarIsVisible="True"
+             >
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Clicked="Logout" Text="Logout" />
+    </ContentPage.ToolbarItems>
 
     <ScrollView>
         <Grid RowSpacing="25" RowDefinitions="Auto,Auto,Auto,Auto,*"
@@ -38,7 +44,7 @@
                 FontAttributes="Bold"
                 Grid.Row="3"
                 SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
+                  Command="{Binding OpenDoorCommand}"
                 HorizontalOptions="Center" />
 
             <Image Grid.Row="4"

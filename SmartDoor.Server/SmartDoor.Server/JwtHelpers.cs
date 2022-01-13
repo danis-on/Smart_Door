@@ -29,6 +29,35 @@ internal static class JwtHelpers
         0xbc, 0xb4, 0xfb, 0xc4, 0x9c, 0x16, 0x61, 0xba, 0x1c, 0xd0, 0xa4, 0x96, 0xf9, 0x1f, 0x11, 0x78,
     }), SecurityAlgorithms.HmacSha512);
 
+    internal static bool ValidateJWTForMqtt(string user, string password)
+    {
+        if (string.IsNullOrEmpty(password))
+            return false;
+        
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                IssuerSigningKey = CREDENTIALS.Key,
+                RequireExpirationTime = true,
+            };
+            var claims = tokenHandler.ValidateToken(password, validationParameters, out var _);
+
+            if (claims.FindFirstValue("mqtt") != user)
+                return false;
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
+    }
+    
     internal static async Task<bool> ValidateJWT(string? token, HttpContext httpContext)
     {
         if (token is null)
@@ -66,7 +95,19 @@ internal static class JwtHelpers
         return true;
     }
 
+    internal static string GetTokenForMqtt(string identifier, DateTime expiry)
+    {
+        var token = new JwtSecurityToken(
+            claims: new[] {
+                new Claim("mqtt", identifier)
+            },
+            expires: expiry,
+            signingCredentials: CREDENTIALS
+        );
 
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    
     internal static string GetTokenForUser(User user, TimeSpan? expiry = null)
     {
         expiry ??= TimeSpan.FromDays(1);

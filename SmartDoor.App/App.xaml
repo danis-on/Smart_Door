@@ -8,6 +8,12 @@
     <Application.Resources>
         <ResourceDictionary>
 
+            <Color x:Key="WindowBackgroundColor">#f2f2f7</Color>
+            <Color x:Key="WindowBackgroundColorDark">Black</Color>
+
+            <Color x:Key="CardBackground">White</Color>
+            <Color x:Key="CardBackgroundDark">#1C1C1E</Color>
+            
             <Style x:Key="BaseStyle" TargetType="Element">
                 <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Dark=Black, Light=White}" />
                 <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Dark=White, Light=Black}" />
@@ -31,6 +37,18 @@
             <Color x:Key="SystemGray5Dark">#2C2C2E</Color>
             <Color x:Key="SystemGray6Dark">#1C1C1E</Color>
 
+            <Style x:Key="CoffeeListView" TargetType="ListView">
+                <Setter Property="HasUnevenRows" Value="True"/>
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="SeparatorVisibility"
+                        Value="None"/>
+                <Setter Property="RefreshControlColor"
+                        Value="Blue"/>
+                <Setter Property="IsPullToRefreshEnabled"
+                        Value="True"/>
+            </Style>
+
+
             <Color x:Key="PrimaryColor">#512bdf</Color>
                     <Color x:Key="SecondaryColor">White</Color>
 
@@ -46,7 +64,14 @@
                         <Setter Property="Padding" Value="14,10" />
                     </Style>
 
-
+            <Style x:Key="UserCard" TargetType="Frame">
+                <Setter Property="HasShadow" 
+                        Value="{OnPlatform Android=true, iOS=false, Default=true}"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="BackgroundColor"
+                        Value="{AppThemeBinding Dark={StaticResource CardBackgroundDark},
+                    Light={StaticResource CardBackground}}"/>
+            </Style>
 
         </ResourceDictionary>
     </Application.Resources>

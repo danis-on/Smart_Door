@@ -3,22 +3,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SmartDoor.App.Views.UserPage"
              xmlns:viewModels="clr-namespace:SmartDoor.App.ViewModels"
+             xmlns:models="clr-namespace:SmartDoor.App.Models"
+             BackgroundColor="WhiteSmoke"
              >
 
     <ContentPage.BindingContext>
         <viewModels:UserViewModel/>
     </ContentPage.BindingContext>
 
+  
+
     <ContentPage.Content>
-        <StackLayout Padding="40" VerticalOptions="Center"
+        <StackLayout Padding="60" VerticalOptions="Center"
                      HorizontalOptions="FillAndExpand">
-            <Label Text="Username:"/>
-            <Entry Placeholder="Username" Text="{Binding Username}"  />
-            <Label Text="Password:"/>
-            <Entry IsPassword="True" Placeholder="Password" Text="{Binding Password}"/>
+
+            <Label Text="Ahoooooj" TextColor="White"></Label>
+            <ListView ItemsSource="{Binding Users}"
+                      HasUnevenRows="True"
+                      >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Padding="0,10">
+                                <Label Text="{Binding Login}"
+                                   FontSize="24"
+                                   TextColor="RoyalBlue" />
+                                <Label Text="{Binding RoleId}" />
+                                <Label Text="{Binding Password}" />
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
             <Button 
                 Command="{Binding GetUsers}"
                 Text="Login" />
+
 
         </StackLayout>
     </ContentPage.Content>

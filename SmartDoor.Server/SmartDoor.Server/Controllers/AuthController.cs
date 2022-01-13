@@ -30,4 +30,15 @@ public class AuthController : Controller
 
         return new LoginResponse(JwtHelpers.GetTokenForUser(user, req.validityInSeconds > 0 ? TimeSpan.FromSeconds((double)req.validityInSeconds) : null));
     }
+    
+    [HttpPost("CreateMqttAccessToken")]
+    [AccessRole(UserRole.Admin)]
+    public ActionResult<LoginResponse> CreateMqttAccessToken(CreateMqttAccessTokenRequest req)
+    {
+        if (req.validityInHours is < 1 or > 87600)
+            return UnprocessableEntity("ValidityInHours needs to be between 1 and 87600 (10 years).");
+        if (req.identifier.Length is < 1 or > 100)
+            return UnprocessableEntity("Identifier needs to be between 1 and 100 characters.");
+        return new LoginResponse(JwtHelpers.GetTokenForMqtt(req.identifier, DateTime.Now.AddHours(req.validityInHours)));
+    }
 }
