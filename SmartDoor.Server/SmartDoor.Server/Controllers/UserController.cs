@@ -98,7 +98,7 @@ public class UserController : Controller
 
     [AccessRole(UserRole.Admin)]
     [HttpPost("Delete/{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<ActionResult> Delete([FromRoute] int id)
     {
         var deleted = 1 == (await _db.ExecuteAsync(@"
             delete from user where id = @id;

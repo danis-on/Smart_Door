@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="SmartDoor.App.Views.LoginPage"
+             xmlns:viewModels="clr-namespace:SmartDoor.App.ViewModels"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutItemIsVisible="False"
+             >
+
+    <ContentPage.BindingContext>
+        <viewModels:LoginViewModel/>
+    </ContentPage.BindingContext>
+
+
+        <Grid BackgroundColor="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid RowSpacing="20" Grid.Row="1" Margin="20,0,20,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+
+                </Grid.RowDefinitions>
+                <Image Source="ic_launcher.png" HeightRequest="90" VerticalOptions="Center"/>
+                <Entry Grid.Row="1" Placeholder="Enter Username" Text="{Binding Username}" PlaceholderColor="#bababa" FontSize="16"/>
+                <Entry Grid.Row="2" Placeholder="Enter Password" Text="{Binding Password}" PlaceholderColor="#bababa" FontSize="16"/>
+                <Button Text="LogIn" Command="{Binding LoginCommand}" BackgroundColor="#3897f0" TextColor="White" HeightRequest="50" VerticalOptions="Start" Grid.Row="3"/>
+              
+            </Grid>
+          
+        </Grid>
+    
+</ContentPage>

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartDoor.App.Views.DoorPage"
+             xmlns:vm="clr-namespace:SmartDoor.App.ViewModels"
+             xmlns:fontAwesome="clr-namespace:SmartDoor.App.Helpers.FontAwesome"
+             Title="Door Controller">
+    
+    <ContentPage.BindingContext>
+        <vm:DoorViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Logout" Command="{Binding LogoutCommand}" />
+
+    </ContentPage.ToolbarItems>
+
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Accent">#96d1ff</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Grid BackgroundColor="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid RowSpacing="20" Grid.Row="1" Margin="20,0,20,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+
+
+
+            </Grid.RowDefinitions>
+
+            <Label Margin="20" Grid.Row ="0" Text="{Binding  Status, StringFormat = 'Stav zámku: {0}'}" FontSize="Large"  HorizontalTextAlignment="Center" TextColor="{Binding StatusColor}"></Label>
+
+            <Image Source="key.jpg" HorizontalOptions="Center" >
+            <Image.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding OpenDoorCommand}" />
+            </Image.GestureRecognizers>
+            </Image>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
